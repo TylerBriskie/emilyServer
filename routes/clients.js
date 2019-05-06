@@ -10,18 +10,10 @@ router.post('/', (req, res) => {
         res.status(422).send("Cannot create customer without password");
     }
     let clientData = req.body;
-    Client.findOne({email: clientData.email}, (err, client)=> {
-       if (err){
-           console.log('error', err);
-           res.status(500).send('Database Error');
-       } else {
-           res.status(400).send('client already exists');
-       }
-    });
     let client = new Client(clientData);
     client.save((error, client) => {
        if (error){
-           console.log(error);
+            res.status(500).send("Client with that email already exists");
        } else {
            res.status(200).send(client);
        }

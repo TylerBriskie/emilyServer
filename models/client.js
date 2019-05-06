@@ -3,7 +3,13 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const clientSchema = new Schema({
-    email: String,
+    email: {
+        type: String,
+        index: {
+            unique: true,
+            dropDups: true
+        }
+    },
     password: String
 });
 
