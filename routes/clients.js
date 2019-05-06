@@ -22,6 +22,7 @@ router.post('/', (req, res) => {
 });
 
 router.get('/', (req, res) => {
+    res.status(200).send('hi');
   // collection.find({}).toArray((error, result) => {
   //         if(error) {
   //             return res.status(500).send(error);
