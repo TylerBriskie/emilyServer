@@ -1,4 +1,6 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
+
 const router = express.Router();
 const Client = require('../models/client');
 
@@ -10,13 +12,22 @@ router.post('/', (req, res) => {
         res.status(422).send("Cannot create customer without password");
     }
     let clientData = req.body;
-    let client = new Client(clientData);
-    client.save((error, client) => {
-       if (error){
-            res.status(500).send("Client with that email already exists");
-       } else {
-           res.status(200).send(client);
-       }
+    bcrypt.hash(req.body.password, 10, (err, hash)=>{
+        if (err){
+            console.log('error hashing password: ', err)
+            res.status(400).send("An Error occured creating this Client");
+        }else {
+            console.log('hashing password - hashed:', hash);
+            clientData.password = hash;
+            let client = new Client(clientData);
+            client.save((error, client) => {
+                if (error){
+                    res.status(409).send("Client with that email already exists");
+                } else {
+                    res.status(200).send(client);
+                }
+            });
+        }
     });
 });
 
