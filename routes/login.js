@@ -1,5 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const Client = require('../models/client');
 
 const router = express.Router();
@@ -16,8 +17,9 @@ router.post('/', (req, res) => {
            } else {
                bcrypt.compare(clientData.password, client.password, (error, login)=> {
                    if (login){
-                       console.log('login success', login);
-                       res.status(200).send(client);
+                       let payload = { subject: client._id};
+                       let token = jwt.sign(payload, 'jonFishman');
+                       res.status(200).send({token});
                    } else {
                        res.status(403).send('password incorrect');
                    }

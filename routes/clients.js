@@ -1,5 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 
 const router = express.Router();
 const Client = require('../models/client');
@@ -20,11 +22,13 @@ router.post('/', (req, res) => {
             console.log('hashing password - hashed:', hash);
             clientData.password = hash;
             let client = new Client(clientData);
-            client.save((error, client) => {
+            client.save((error, registeredClient) => {
                 if (error){
                     res.status(409).send("Client with that email already exists");
                 } else {
-                    res.status(200).send(client);
+                    let payload = { subject: registeredClient._id };
+                    let token = jwt.sign(payload, 'jonFishman');
+                    res.status(200).send({token});
                 }
             });
         }
