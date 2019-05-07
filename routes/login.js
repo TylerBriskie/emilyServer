@@ -11,7 +11,7 @@ router.post('/', (req, res) => {
            console.log('error: ', err);
        } else {
            if (!client) {
-               res.status(400).send('Invalid Email');
+               res.status(401).send('Invalid Email');
 
            } else {
                bcrypt.compare(clientData.password, client.password, (error, login)=> {
@@ -23,13 +23,6 @@ router.post('/', (req, res) => {
                    }
                })
            }
-
-           // else if(client.password !== clientData.password) {
-           //     res.status(401).send('invalid password');
-           // } else {
-           //     res.status(200).send(client);
-           // }
-
        }
     });
 });
