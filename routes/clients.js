@@ -57,16 +57,19 @@ router.get('/', (req, res) => {
 
 });
 
-router.get('/:id', verifyToken, (req, res) => {
-    console.log('finding client by poop pants: ', req.params.id);
-    let clientId = req.params.id;
+router.get('/getLoggedIn', verifyToken, (req, res) => {
+    console.log('finding client by poop pants: ', req.userId);
+    let clientId = req.userId;
     Client.findById(clientId, (err, client)=> {
         if (err){
-            console.log('error: ', err);
             res.status(401).send('Client Not Found');
         } else {
-            res.status(200).send(client);
+            // res.status(200).send(client);
         }
+    }).then((document) => {
+        // strip password
+        const { password, ...clientData } = document._doc;
+        res.status(200).send(clientData);
     });
 });
 
