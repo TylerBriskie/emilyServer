@@ -1,10 +1,25 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+const Client = require('../models/client');
 
 const router = express.Router();
-const Client = require('../models/client');
+
+function verifyToken(req, res, next) {
+    if (!req.headers.authorization){
+        return res.status(401).send('Unauthorized Request - Authorization Missing');
+    }
+    let token = req.headers.authorization.split(' ')[1];
+    if (token === null){
+        return res.status(401).send('Unauthorized Request - Token Missing');
+    }
+    let payload = jwt.verify(token, 'jonFishman');
+    if (!payload){
+        return res.status(401).send("Unauthorized Request - Bad Token");
+    }
+    req.userId = payload.subject;
+    next();
+}
 
 router.post('/', (req, res) => {
     if (!req.body.email){
@@ -23,10 +38,12 @@ router.post('/', (req, res) => {
             clientData.password = hash;
             let client = new Client(clientData);
             client.save((error, registeredClient) => {
+                console.log(registeredClient);
                 if (error){
                     res.status(409).send("Client with that email already exists");
                 } else {
                     let payload = { subject: registeredClient._id };
+                    console.log(payload);
                     let token = jwt.sign(payload, 'jonFishman');
                     res.status(200).send({token});
                 }
@@ -40,7 +57,7 @@ router.get('/', (req, res) => {
 
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', verifyToken, (req, res) => {
     console.log('finding client by poop pants: ', req.params.id);
     let clientId = req.params.id;
     Client.findById(clientId, (err, client)=> {

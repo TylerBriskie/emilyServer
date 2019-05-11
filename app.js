@@ -6,21 +6,23 @@ const MongoClient = require("mongodb").MongoClient;
 const ObjectId = require("mongodb").ObjectID;
 
 const atlas = require('./config/keys');
+const PORT = process.env.PORT || '1337';
 
 var app = express();
+
+// MIDDLEWARE
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// ROUTES
 
 app.use('/', require('./routes/index'));
 app.use('/clients', require('./routes/clients'));
 app.use('/login', require('./routes/login'));
 
-
-const PORT = process.env.PORT || '1337';
-
+// APP
 app.listen(PORT, () => {
   mongoose.connect(atlas.URI, error => {
     if (error){
