@@ -13,7 +13,6 @@ router.post('/', (req, res) => {
        } else {
            if (!client) {
                res.status(401).send('Invalid Email');
-
            } else {
                bcrypt.compare(clientData.password, client.password, (error, login)=> {
                    if (login){

@@ -58,7 +58,6 @@ router.get('/', (req, res) => {
 });
 
 router.get('/getLoggedIn', verifyToken, (req, res) => {
-    console.log('finding client by poop pants: ', req.userId);
     let clientId = req.userId;
     Client.findById(clientId, (err, client)=> {
         if (err){
@@ -72,6 +71,62 @@ router.get('/getLoggedIn', verifyToken, (req, res) => {
         res.status(200).send(clientData);
     });
 });
+
+// Update Personal Info
+router.post('/:id/updatePersonalInfo', verifyToken, (req, res) => {
+   console.log('UPDATING CLIENT INFO: ', req.body);
+
+   Client.findByIdAndUpdate(req.userId, req.body, (err, client) => {
+       if (err) {
+           console.log('error updating personal info: ', err);
+           res.status(401).send(err)
+       }}).then((document) => {
+            res.status(200).send(document);
+
+   })
+});
+
+// Update Password
+router.post('/:id/updatePassword', verifyToken, (req, res)=>{
+    console.log("UPDATING PASSWORD. ", req.body.currentPassword, req.params.id);
+    Client.findOne({_id: req.params.id}, (err, client)=>{
+        if (err){
+            console.log('error: ', err);
+        } else {
+            if (!client){
+                res.status(401).send('Client not found');
+            } else {
+                bcrypt.compare(req.body.currentPassword, client.password, (error, changePW)=> {
+                    if (changePW){
+                        bcrypt.hash(req.body.newPassword, 10, (err, hash)=>{
+                            console.log('new password hashed: ', hash);
+                            if (err){
+                                console.log('error hashing password: ', err);
+                                res.status(400).send("An Error occured updating the password. Password was not changed.");
+                            } else {
+                                let updateObject = {
+                                    'password': hash,
+                                };
+                                Client.findByIdAndUpdate(req.params.id, updateObject, (err, client) => {
+                                    if (err) {
+                                        console.log('error updating personal info: ', err);
+                                    }
+                                }).then((document) => {
+                                    console.log('updated document');
+                                    res.status(200).send(document);
+                                })
+                            }
+                        });
+                    } else {
+                        console.log('incorrect password');
+                        res.status(403).send('password incorrect');
+                    }
+                })
+            }
+        }
+    });
+
+})
 
 
 module.exports = router;

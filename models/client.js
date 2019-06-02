@@ -10,7 +10,14 @@ const clientSchema = new Schema({
             dropDups: true
         }
     },
-    password: String
+    password: String,
+    firstName: String,
+    lastName: String,
+    birthDate: Date,
+    heightFeet: String,
+    heightInches: String,
+    weight: String,
+    conditions: String,
 });
 
 module.exports = mongoose.model('client', clientSchema, 'clients');
