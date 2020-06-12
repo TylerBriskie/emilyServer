@@ -85,10 +85,39 @@ router.post('/:id/updatePersonalInfo', verifyToken, (req, res) => {
 
    })
 });
+// Update Email
+router.post('/:id/updateEmail', verifyToken, (req, res)=> {
+    Client.findOne({_id:req.params.id}, (err, foundClient) =>{
+        if (err){
+            console.log('error: ', err);
+            res.status(401).send('Invalid User');
+        } else {
+            if (!foundClient){
+                res.status(401).send('Client not found');
+            } else {
+                let client = new Client(foundClient);
+                Client.findOne({email:req.body.newEmail}, (err, newEmail) => {
+                    if (err){
+                        res.status(401).send('Client not found??');
+                    } else {
+                        if (newEmail){
+                            console.log("Duplicate Email Found.  Cancelling", newEmail);
+                            res.status(403).send('Duplicate Email Found In System')
+                        } else {
+                            client.email = req.body.newEmail
+                            client.save((error, updatedClient)=>{
+                                res.status(200).send(updatedClient);
+                            })
+                        }
+                    }
+                })
+            }
+        }
+    })
+});
 
 // Update Password
 router.post('/:id/updatePassword', verifyToken, (req, res)=>{
-    console.log("UPDATING PASSWORD. ", req.body.currentPassword, req.params.id);
     Client.findOne({_id: req.params.id}, (err, client)=>{
         if (err){
             console.log('error: ', err);
